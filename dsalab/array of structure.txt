@@ -1,0 +1,153 @@
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Student {
+    int roll;
+    string name;
+    float sgpa;
+};
+
+// Bubble Sort: Sort by Roll Number (A)
+void bubbleSort(Student s[], int n) {
+    for (int i = 0; i < n - 1; i++)
+        for (int j = 0; j < n - i - 1; j++)
+            if (s[j].roll > s[j + 1].roll)
+                swap(s[j], s[j + 1]);
+}
+
+// Insertion Sort: Sort by Name (B)
+void insertionSort(Student s[], int n) {
+    for (int i = 1; i < n; i++) {
+        Student key = s[i];
+        int j = i - 1;
+        while (j >= 0 && s[j].name > key.name) {
+            s[j + 1] = s[j];
+            j--;
+        }
+        s[j + 1] = key;
+    }
+}
+
+// Quick Sort: Sort by SGPA to find toppers (C)
+int partition(Student s[], int low, int high) {
+    float pivot = s[high].sgpa;
+    int i = low - 1;
+    for (int j = low; j < high; j++) {
+        if (s[j].sgpa > pivot) {
+            i++;
+            swap(s[i], s[j]);
+        }
+    }
+    swap(s[i + 1], s[high]);
+    return i + 1;
+}
+
+void quickSort(Student s[], int low, int high) {
+    if (low < high) {
+        int pi = partition(s, low, high);
+        quickSort(s, low, pi - 1);
+        quickSort(s, pi + 1, high);
+    }
+}
+
+// SGPA search: (D)
+void searchBySGPA(Student s[], int n, float target) {
+    bool found = false;
+    cout << "Students with SGPA " << target << ":\n";
+    for (int i = 0; i < n; i++) {
+        if (s[i].sgpa == target) {
+            cout << s[i].roll << " " << s[i].name << " " << s[i].sgpa << endl;
+            found = true;
+        }
+    }
+    if (!found) cout << "No student found with that SGPA.\n";
+}
+
+// Binary search by name (without recursion) (E)
+// Requires array sorted by name (use insertionSort first)
+void binarySearchByName(Student s[], int n, string key) {
+    int low = 0, high = n - 1;
+    bool found = false;
+
+    cout << "Search results for name '" << key << "':\n";
+    while (low <= high) {
+        int mid = (low + high) / 2;
+        if (s[mid].name == key) {
+            cout << s[mid].roll << " " << s[mid].name << " " << s[mid].sgpa << endl;
+            found = true;
+
+            // check left
+            int left = mid - 1;
+            while (left >= 0 && s[left].name == key) {
+                cout << s[left].roll << " " << s[left].name << " " << s[left].sgpa << endl;
+                left--;
+            }
+
+            // check right
+            int right = mid + 1;
+            while (right < n && s[right].name == key) {
+                cout << s[right].roll << " " << s[right].name << " " << s[right].sgpa << endl;
+                right++;
+            }
+
+            break;
+        } else if (s[mid].name < key) {
+            low = mid + 1;
+        } else {
+            high = mid - 1;
+        }
+    }
+
+    if (!found) cout << "No student found with that name.\n";
+}
+
+// Display all records
+void display(Student s[], int n) {
+    for (int i = 0; i < n; i++)
+        cout << s[i].roll << " " << s[i].name << " " << s[i].sgpa << endl;
+}
+
+// Main function
+int main() {
+    int n = 15;
+    Student s[15] = {
+        {105, "Alice", 8.9},
+        {101, "Bob", 9.1},
+        {103, "Charlie", 7.5},
+        {102, "David", 8.7},
+        {104, "Eva", 9.3},
+        {106, "Frank", 9.2},
+        {107, "Grace", 7.8},
+        {108, "Hannah", 8.5},
+        {109, "Ivy", 9.4},
+        {110, "Jack", 6.9},
+        {111, "Karen", 7.2},
+        {112, "Leo", 8.6},
+        {113, "Mia", 9.0},
+        {114, "Nina", 8.8},
+        {115, "Oscar", 9.5}
+    };
+
+    cout << "\nA) Bubble Sort by Roll Number:\n";
+    bubbleSort(s, n);
+    display(s, n);
+
+    cout << "\nB) Insertion Sort by Name:\n";
+    insertionSort(s, n);
+    display(s, n);
+
+    cout << "\nC) Top 10 Toppers (Quick Sort by SGPA):\n";
+    quickSort(s, 0, n - 1);
+    for (int i = 0; i < 10; i++)
+        cout << s[i].roll << " " << s[i].name << " " << s[i].sgpa << endl;
+
+    cout << "\nD) Search students by SGPA (9.1):\n";
+    searchBySGPA(s, n, 9.1);
+
+    cout << "\nE) Binary Search by Name (searching for 'Eva'):\n";
+    insertionSort(s, n); // must be sorted for binary search
+    binarySearchByName(s, n, "Eva");
+
+    return 0;
+}
